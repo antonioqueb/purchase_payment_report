@@ -18,11 +18,11 @@
         </field>
     </record>
 
-    <!-- Menú en Compras > Reportes -->
+    <!-- Menú propio bajo el menú raíz de Compras -->
     <menuitem
         id="menu_purchase_payment_report"
         name="Pagos a Proveedores"
-        parent="purchase.menu_purchase_report"
+        parent="purchase.menu_purchase_root"
         action="action_purchase_payment_report_wizard"
-        sequence="20"/>
+        sequence="99"/>
 </odoo>
