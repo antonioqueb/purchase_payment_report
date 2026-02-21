@@ -32,12 +32,8 @@
                             margin-bottom: 20px;
                             font-size: 11px;
                         }
-                        .report-meta table {
-                            width: 100%;
-                        }
-                        .report-meta td {
-                            padding: 2px 8px 2px 0;
-                        }
+                        .report-meta table { width: 100%; }
+                        .report-meta td { padding: 2px 8px 2px 0; }
                         .report-meta .label {
                             font-weight: 700;
                             text-transform: uppercase;
@@ -45,8 +41,6 @@
                             color: #444;
                             white-space: nowrap;
                         }
-
-                        /* Tabla principal */
                         table.main-table {
                             width: 100%;
                             border-collapse: collapse;
@@ -66,15 +60,9 @@
                             border: 1px solid #000000;
                             color: #ffffff;
                         }
-                        table.main-table thead th.text-right {
-                            text-align: right;
-                        }
-                        table.main-table tbody tr {
-                            border-bottom: 1px solid #e0e0e0;
-                        }
-                        table.main-table tbody tr:nth-child(even) {
-                            background-color: #f5f5f5;
-                        }
+                        table.main-table thead th.text-right { text-align: right; }
+                        table.main-table tbody tr { border-bottom: 1px solid #e0e0e0; }
+                        table.main-table tbody tr:nth-child(even) { background-color: #f5f5f5; }
                         table.main-table tbody td {
                             padding: 7px 10px;
                             border-left: 1px solid #e0e0e0;
@@ -85,11 +73,7 @@
                             text-align: right;
                             font-family: monospace;
                         }
-                        table.main-table tbody td.text-center {
-                            text-align: center;
-                        }
-
-                        /* Fila de totales */
+                        table.main-table tbody td.text-center { text-align: center; }
                         table.main-table tfoot tr {
                             background-color: #000000;
                             color: #ffffff;
@@ -104,8 +88,6 @@
                             text-align: right;
                             font-family: monospace;
                         }
-
-                        /* Indicadores de estado */
                         .badge-paid {
                             background-color: #000;
                             color: #fff;
@@ -113,7 +95,6 @@
                             font-size: 9px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
                         }
                         .badge-pending {
                             background-color: #fff;
@@ -123,7 +104,6 @@
                             font-weight: 700;
                             border: 1px solid #000;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
                         }
                         .badge-partial {
                             background-color: #555;
@@ -132,22 +112,7 @@
                             font-size: 9px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
                         }
-
-                        /* Separador de proveedor (modo por proveedor con múltiples proveedores) */
-                        .partner-section {
-                            margin-top: 20px;
-                        }
-                        .partner-section-header {
-                            background-color: #333;
-                            color: #fff;
-                            padding: 6px 12px;
-                            font-size: 12px;
-                            font-weight: 700;
-                            letter-spacing: 0.5px;
-                        }
-
                         .summary-box {
                             margin-top: 16px;
                             border: 2px solid #000;
@@ -156,13 +121,8 @@
                             min-width: 280px;
                             float: right;
                         }
-                        .summary-box table {
-                            width: 100%;
-                        }
-                        .summary-box td {
-                            padding: 3px 6px;
-                            font-size: 11px;
-                        }
+                        .summary-box table { width: 100%; }
+                        .summary-box td { padding: 3px 6px; font-size: 11px; }
                         .summary-box td:last-child {
                             text-align: right;
                             font-family: monospace;
@@ -178,11 +138,7 @@
                             font-size: 10px;
                             color: #444;
                         }
-                        .clearfix::after {
-                            content: "";
-                            display: table;
-                            clear: both;
-                        }
+                        .clearfix::after { content: ""; display: table; clear: both; }
                         .footer-note {
                             margin-top: 30px;
                             font-size: 9px;
@@ -192,64 +148,61 @@
                         }
                     </style>
 
-                    <!-- ENCABEZADO -->
+                    <t t-set="rpt" t-value="data"/>
+
                     <div class="report-header">
                         <h2>Reporte de Pagos a Proveedor</h2>
-                        <p t-esc="docs.report_title"/>
+                        <p t-esc="rpt['report_title']"/>
                     </div>
 
                     <div class="report-meta">
                         <table>
                             <tr>
                                 <td class="label">Empresa:</td>
-                                <td t-esc="docs.company_name"/>
+                                <td t-esc="rpt['company_name']"/>
                                 <td class="label" style="padding-left:30px;">RFC:</td>
-                                <td t-esc="docs.company_vat"/>
+                                <td t-esc="rpt['company_vat']"/>
                                 <td class="label" style="padding-left:30px;">Fecha emisión:</td>
                                 <td><span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/></td>
                             </tr>
-                            <tr t-if="docs.date_from or docs.date_to">
+                            <tr t-if="rpt['date_from'] or rpt['date_to']">
                                 <td class="label">Período:</td>
                                 <td>
-                                    <t t-if="docs.date_from">Desde <t t-esc="docs.date_from"/></t>
-                                    <t t-if="docs.date_to"> Hasta <t t-esc="docs.date_to"/></t>
+                                    <t t-if="rpt['date_from']">Desde <t t-esc="rpt['date_from']"/></t>
+                                    <t t-if="rpt['date_to']"> Hasta <t t-esc="rpt['date_to']"/></t>
                                 </td>
                             </tr>
                         </table>
                     </div>
 
-                    <!-- TABLA DE PEDIDOS -->
                     <table class="main-table">
                         <thead>
                             <tr>
                                 <th>Pedido</th>
-                                <th t-if="docs.report_type == 'partner'">Proveedor</th>
+                                <th t-if="rpt['report_type'] == 'order'">Proveedor</th>
                                 <th>Fecha</th>
                                 <th>Moneda</th>
                                 <th class="text-right">Total Pedido</th>
                                 <th class="text-right">Pagado</th>
                                 <th class="text-right">Pendiente</th>
-                                <th class="text-center">Estado</th>
+                                <th style="text-align:center;">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <t t-foreach="docs.orders" t-as="order">
+                            <t t-foreach="rpt['orders']" t-as="order">
                                 <tr>
                                     <td><strong t-esc="order['name']"/></td>
-                                    <td t-if="docs.report_type == 'partner'" t-esc="order['partner_name']"/>
+                                    <td t-if="rpt['report_type'] == 'order'" t-esc="order['partner_name']"/>
                                     <td t-esc="order['date_order']"/>
                                     <td t-esc="order['currency_name']"/>
                                     <td class="text-right">
-                                        <t t-esc="order['currency_symbol']"/>
-                                        <t t-esc="'{:,.2f}'.format(order['amount_total'])"/>
+                                        <t t-esc="order['currency_symbol']"/>&#160;<t t-esc="'{:,.2f}'.format(order['amount_total'])"/>
                                     </td>
                                     <td class="text-right">
-                                        <t t-esc="order['currency_symbol']"/>
-                                        <t t-esc="'{:,.2f}'.format(order['amount_paid'])"/>
+                                        <t t-esc="order['currency_symbol']"/>&#160;<t t-esc="'{:,.2f}'.format(order['amount_paid'])"/>
                                     </td>
                                     <td class="text-right">
-                                        <t t-esc="order['currency_symbol']"/>
-                                        <t t-esc="'{:,.2f}'.format(order['amount_residual'])"/>
+                                        <t t-esc="order['currency_symbol']"/>&#160;<t t-esc="'{:,.2f}'.format(order['amount_residual'])"/>
                                     </td>
                                     <td class="text-center">
                                         <t t-if="order['amount_residual'] &lt;= 0">
@@ -267,41 +220,39 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4" t-if="docs.report_type == 'order'"><strong>TOTALES</strong></td>
-                                <td colspan="3" t-if="docs.report_type == 'partner'"><strong>TOTALES</strong></td>
+                                <td t-att-colspan="4 if rpt['report_type'] == 'order' else 3"><strong>TOTALES</strong></td>
                                 <td class="text-right">
-                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_total'] for o in docs.orders))"/>
+                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_total'] for o in rpt['orders']))"/>
                                 </td>
                                 <td class="text-right">
-                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_paid'] for o in docs.orders))"/>
+                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_paid'] for o in rpt['orders']))"/>
                                 </td>
                                 <td class="text-right">
-                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_residual'] for o in docs.orders))"/>
+                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_residual'] for o in rpt['orders']))"/>
                                 </td>
                                 <td></td>
                             </tr>
                         </tfoot>
                     </table>
 
-                    <!-- RESUMEN -->
                     <div class="clearfix">
                         <div class="summary-box">
                             <table>
                                 <tr>
                                     <td class="label">Total Pedidos</td>
-                                    <td t-esc="len(docs.orders)"/>
+                                    <td t-esc="len(rpt['orders'])"/>
                                 </tr>
                                 <tr>
                                     <td class="label">Monto Total</td>
-                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_total'] for o in docs.orders))"/>
+                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_total'] for o in rpt['orders']))"/>
                                 </tr>
                                 <tr>
                                     <td class="label">Total Pagado</td>
-                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_paid'] for o in docs.orders))"/>
+                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_paid'] for o in rpt['orders']))"/>
                                 </tr>
                                 <tr class="total-row">
                                     <td class="label">Total Pendiente</td>
-                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_residual'] for o in docs.orders))"/>
+                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_residual'] for o in rpt['orders']))"/>
                                 </tr>
                             </table>
                         </div>
