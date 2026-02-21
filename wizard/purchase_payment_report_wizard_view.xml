@@ -8,10 +8,10 @@
                 <group>
                     <field name="report_type" widget="radio"/>
                 </group>
-                <group attrs="{'invisible': [('report_type', '!=', 'partner')]}">
+                <group invisible="report_type != 'partner'">
                     <field name="partner_id" required="report_type == 'partner'"/>
                 </group>
-                <group attrs="{'invisible': [('report_type', '!=', 'order')]}">
+                <group invisible="report_type != 'order'">
                     <field name="order_ids" widget="many2many_tags" required="report_type == 'order'"/>
                 </group>
                 <group string="Filtro de Fechas (Opcional)">
