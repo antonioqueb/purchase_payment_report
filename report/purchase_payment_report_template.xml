@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchase_payment_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <style>
+                        .report-header {
+                            background-color: #000000;
+                            color: #ffffff;
+                            padding: 16px 20px;
+                            margin-bottom: 0;
+                        }
+                        .report-header h2 {
+                            margin: 0;
+                            font-size: 18px;
+                            font-weight: 700;
+                            letter-spacing: 1px;
+                            text-transform: uppercase;
+                            color: #ffffff;
+                        }
+                        .report-header p {
+                            margin: 4px 0 0 0;
+                            font-size: 11px;
+                            color: #cccccc;
+                        }
+                        .report-meta {
+                            border: 1px solid #000000;
+                            border-top: none;
+                            padding: 10px 20px;
+                            background-color: #f8f8f8;
+                            margin-bottom: 20px;
+                            font-size: 11px;
+                        }
+                        .report-meta table {
+                            width: 100%;
+                        }
+                        .report-meta td {
+                            padding: 2px 8px 2px 0;
+                        }
+                        .report-meta .label {
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            font-size: 10px;
+                            color: #444;
+                            white-space: nowrap;
+                        }
+
+                        /* Tabla principal */
+                        table.main-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-size: 11px;
+                        }
+                        table.main-table thead tr {
+                            background-color: #000000;
+                            color: #ffffff;
+                        }
+                        table.main-table thead th {
+                            padding: 8px 10px;
+                            text-align: left;
+                            font-weight: 600;
+                            font-size: 10px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            border: 1px solid #000000;
+                            color: #ffffff;
+                        }
+                        table.main-table thead th.text-right {
+                            text-align: right;
+                        }
+                        table.main-table tbody tr {
+                            border-bottom: 1px solid #e0e0e0;
+                        }
+                        table.main-table tbody tr:nth-child(even) {
+                            background-color: #f5f5f5;
+                        }
+                        table.main-table tbody td {
+                            padding: 7px 10px;
+                            border-left: 1px solid #e0e0e0;
+                            border-right: 1px solid #e0e0e0;
+                            vertical-align: middle;
+                        }
+                        table.main-table tbody td.text-right {
+                            text-align: right;
+                            font-family: monospace;
+                        }
+                        table.main-table tbody td.text-center {
+                            text-align: center;
+                        }
+
+                        /* Fila de totales */
+                        table.main-table tfoot tr {
+                            background-color: #000000;
+                            color: #ffffff;
+                        }
+                        table.main-table tfoot td {
+                            padding: 8px 10px;
+                            border: 1px solid #000000;
+                            font-weight: 700;
+                            color: #ffffff;
+                        }
+                        table.main-table tfoot td.text-right {
+                            text-align: right;
+                            font-family: monospace;
+                        }
+
+                        /* Indicadores de estado */
+                        .badge-paid {
+                            background-color: #000;
+                            color: #fff;
+                            padding: 2px 6px;
+                            font-size: 9px;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+                        .badge-pending {
+                            background-color: #fff;
+                            color: #000;
+                            padding: 2px 6px;
+                            font-size: 9px;
+                            font-weight: 700;
+                            border: 1px solid #000;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+                        .badge-partial {
+                            background-color: #555;
+                            color: #fff;
+                            padding: 2px 6px;
+                            font-size: 9px;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        /* Separador de proveedor (modo por proveedor con múltiples proveedores) */
+                        .partner-section {
+                            margin-top: 20px;
+                        }
+                        .partner-section-header {
+                            background-color: #333;
+                            color: #fff;
+                            padding: 6px 12px;
+                            font-size: 12px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .summary-box {
+                            margin-top: 16px;
+                            border: 2px solid #000;
+                            padding: 12px 20px;
+                            display: inline-block;
+                            min-width: 280px;
+                            float: right;
+                        }
+                        .summary-box table {
+                            width: 100%;
+                        }
+                        .summary-box td {
+                            padding: 3px 6px;
+                            font-size: 11px;
+                        }
+                        .summary-box td:last-child {
+                            text-align: right;
+                            font-family: monospace;
+                            font-weight: 600;
+                        }
+                        .summary-box .total-row {
+                            border-top: 2px solid #000;
+                            font-weight: 700;
+                            font-size: 12px;
+                        }
+                        .summary-box .label {
+                            text-transform: uppercase;
+                            font-size: 10px;
+                            color: #444;
+                        }
+                        .clearfix::after {
+                            content: "";
+                            display: table;
+                            clear: both;
+                        }
+                        .footer-note {
+                            margin-top: 30px;
+                            font-size: 9px;
+                            color: #888;
+                            border-top: 1px solid #ccc;
+                            padding-top: 6px;
+                        }
+                    </style>
+
+                    <!-- ENCABEZADO -->
+                    <div class="report-header">
+                        <h2>Reporte de Pagos a Proveedor</h2>
+                        <p t-esc="docs.report_title"/>
+                    </div>
+
+                    <div class="report-meta">
+                        <table>
+                            <tr>
+                                <td class="label">Empresa:</td>
+                                <td t-esc="docs.company_name"/>
+                                <td class="label" style="padding-left:30px;">RFC:</td>
+                                <td t-esc="docs.company_vat"/>
+                                <td class="label" style="padding-left:30px;">Fecha emisión:</td>
+                                <td><span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/></td>
+                            </tr>
+                            <tr t-if="docs.date_from or docs.date_to">
+                                <td class="label">Período:</td>
+                                <td>
+                                    <t t-if="docs.date_from">Desde <t t-esc="docs.date_from"/></t>
+                                    <t t-if="docs.date_to"> Hasta <t t-esc="docs.date_to"/></t>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- TABLA DE PEDIDOS -->
+                    <table class="main-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th t-if="docs.report_type == 'partner'">Proveedor</th>
+                                <th>Fecha</th>
+                                <th>Moneda</th>
+                                <th class="text-right">Total Pedido</th>
+                                <th class="text-right">Pagado</th>
+                                <th class="text-right">Pendiente</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs.orders" t-as="order">
+                                <tr>
+                                    <td><strong t-esc="order['name']"/></td>
+                                    <td t-if="docs.report_type == 'partner'" t-esc="order['partner_name']"/>
+                                    <td t-esc="order['date_order']"/>
+                                    <td t-esc="order['currency_name']"/>
+                                    <td class="text-right">
+                                        <t t-esc="order['currency_symbol']"/>
+                                        <t t-esc="'{:,.2f}'.format(order['amount_total'])"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="order['currency_symbol']"/>
+                                        <t t-esc="'{:,.2f}'.format(order['amount_paid'])"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="order['currency_symbol']"/>
+                                        <t t-esc="'{:,.2f}'.format(order['amount_residual'])"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-if="order['amount_residual'] &lt;= 0">
+                                            <span class="badge-paid">Pagado</span>
+                                        </t>
+                                        <t t-elif="order['amount_paid'] &lt;= 0">
+                                            <span class="badge-pending">Pendiente</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge-partial">Parcial</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" t-if="docs.report_type == 'order'"><strong>TOTALES</strong></td>
+                                <td colspan="3" t-if="docs.report_type == 'partner'"><strong>TOTALES</strong></td>
+                                <td class="text-right">
+                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_total'] for o in docs.orders))"/>
+                                </td>
+                                <td class="text-right">
+                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_paid'] for o in docs.orders))"/>
+                                </td>
+                                <td class="text-right">
+                                    <t t-esc="'{:,.2f}'.format(sum(o['amount_residual'] for o in docs.orders))"/>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- RESUMEN -->
+                    <div class="clearfix">
+                        <div class="summary-box">
+                            <table>
+                                <tr>
+                                    <td class="label">Total Pedidos</td>
+                                    <td t-esc="len(docs.orders)"/>
+                                </tr>
+                                <tr>
+                                    <td class="label">Monto Total</td>
+                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_total'] for o in docs.orders))"/>
+                                </tr>
+                                <tr>
+                                    <td class="label">Total Pagado</td>
+                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_paid'] for o in docs.orders))"/>
+                                </tr>
+                                <tr class="total-row">
+                                    <td class="label">Total Pendiente</td>
+                                    <td t-esc="'{:,.2f}'.format(sum(o['amount_residual'] for o in docs.orders))"/>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        * Los montos se muestran en la divisa del pedido de compra correspondiente.
+                        Los pagos realizados en divisa diferente son convertidos a la divisa del pedido.
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_purchase_payment">
+        <t t-call="purchase_payment_report.report_purchase_payment_document"/>
+    </template>
+</odoo>

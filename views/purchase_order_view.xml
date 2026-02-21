@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Botón en el formulario de pedido de compra -->
+    <record id="view_purchase_order_form_inherit_payment_report" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.payment.report</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_purchase_payment_report_from_order"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-file-text-o"
+                    string="Reporte de Pagos"
+                    groups="purchase.group_purchase_user"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Menú en Compras > Reportes -->
+    <menuitem
+        id="menu_purchase_payment_report"
+        name="Pagos a Proveedores"
+        parent="purchase.menu_purchase_report"
+        action="action_purchase_payment_report_wizard"
+        sequence="20"/>
+</odoo>
