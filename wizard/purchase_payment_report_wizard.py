@@ -7,25 +7,32 @@ class PurchasePaymentReportWizard(models.TransientModel):
     _description = 'Asistente Reporte de Pagos a Proveedor'
 
     report_type = fields.Selection([
-        ('partner', 'Por Proveedor'),
-        ('order', 'Por Pedido'),
+        ('partner', 'Estado de Cuenta por Proveedor'),
+        ('order', 'Por Pedido de Compra'),
     ], string='Tipo de Reporte', required=True, default='partner')
 
     partner_id = fields.Many2one(
         'res.partner', string='Proveedor',
         domain=[('supplier_rank', '>', 0)],
+        help='Deja vacío para incluir todos los proveedores'
     )
-    order_ids = fields.Many2many(
-        'purchase.order', string='Pedidos de Compra',
+
+    # Un solo pedido (many2one en lugar de many2many)
+    order_id = fields.Many2one(
+        'purchase.order', string='Pedido de Compra',
         domain=[('state', 'in', ['purchase', 'done'])],
     )
+
     date_from = fields.Date(string='Fecha Desde')
     date_to = fields.Date(string='Fecha Hasta')
+
+    # Control interno: si viene de una orden, ocultamos la selección
+    from_order = fields.Boolean(default=False)
 
     @api.onchange('report_type')
     def _onchange_report_type(self):
         self.partner_id = False
-        self.order_ids = [(5, 0, 0)]
+        self.order_id = False
 
     def action_print_report(self):
         self.ensure_one()
@@ -38,13 +45,13 @@ class PurchasePaymentReportWizard(models.TransientModel):
         domain = [('state', 'in', ['purchase', 'done'])]
 
         if self.report_type == 'partner':
-            if not self.partner_id:
-                raise UserError(_('Debe seleccionar un proveedor.'))
-            domain.append(('partner_id', '=', self.partner_id.id))
+            # Proveedor es opcional; si no hay, trae todo
+            if self.partner_id:
+                domain.append(('partner_id', '=', self.partner_id.id))
         else:
-            if not self.order_ids:
-                raise UserError(_('Debe seleccionar al menos un pedido.'))
-            domain.append(('id', 'in', self.order_ids.ids))
+            if not self.order_id:
+                raise UserError(_('Debe seleccionar un pedido de compra.'))
+            domain.append(('id', '=', self.order_id.id))
 
         if self.date_from:
             domain.append(('date_order', '>=', self.date_from))
@@ -58,16 +65,16 @@ class PurchasePaymentReportWizard(models.TransientModel):
             currency = order.currency_id
             amount_total = order.amount_total
 
-            # Pagos realizados: facturas validadas asociadas al pedido
-            invoices = order.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type == 'in_invoice')
-            credit_notes = order.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type == 'in_refund')
+            invoices = order.invoice_ids.filtered(
+                lambda i: i.state == 'posted' and i.move_type == 'in_invoice'
+            )
+            credit_notes = order.invoice_ids.filtered(
+                lambda i: i.state == 'posted' and i.move_type == 'in_refund'
+            )
 
-            amount_invoiced = sum(invoices.mapped('amount_total_signed')) - sum(credit_notes.mapped('amount_total_signed'))
             amount_paid = 0.0
-
             for inv in invoices:
                 for payment in inv._get_reconciled_payments():
-                    # Convertir a la divisa del pedido si es necesario
                     if payment.currency_id == currency:
                         amount_paid += payment.amount
                     else:
@@ -86,11 +93,8 @@ class PurchasePaymentReportWizard(models.TransientModel):
                             order.company_id, payment.date
                         )
 
-            # Saldo pendiente = total del pedido - lo pagado
-            # Usamos residual de facturas para mayor precisión
             amount_residual = sum(invoices.mapped('amount_residual')) - sum(credit_notes.mapped('amount_residual'))
 
-            # Si no hay facturas, todo el pedido está pendiente
             if not invoices:
                 amount_paid = 0.0
                 amount_residual = amount_total
@@ -108,12 +112,13 @@ class PurchasePaymentReportWizard(models.TransientModel):
                 'invoice_count': len(invoices),
             })
 
-        # Agrupar por proveedor para el reporte por proveedor
-        report_title = ''
         if self.report_type == 'partner':
-            report_title = self.partner_id.name
+            if self.partner_id:
+                report_title = self.partner_id.name
+            else:
+                report_title = 'Todos los Proveedores'
         else:
-            report_title = 'Pedidos Seleccionados'
+            report_title = self.order_id.name if self.order_id else 'Pedido Seleccionado'
 
         return {
             'report_type': self.report_type,
